@@ -20,7 +20,7 @@ function runBot() {
     });
     client.on("ready", async () => {
       // setup actions to take once the bot connects including to:
-      console.log("Logged in as " + client.user.tag); // log in console that the bot has correctly logged in
+      console.log("Successfully logged in as " + client.user.tag); // log in console that the bot has correctly logged in
       channel = await client.channels.fetch(process.env.channelId); // set our storage variable for our announcement channel
 
       setInterval(() => {
@@ -30,16 +30,17 @@ function runBot() {
     });
     client.login(process.env.botToken); // tell the bot to try to log in now we have set up its actions
   } catch (err) {
-    console.log(
+    console.error(
       "Something went wrong when trying to setup/connect the bot to discord...\nDumping error log..."
     );
-    console.log(err);
+    console.error(err);
     process.exit();
   }
 }
 
 async function watchOpensea() {
   // announcement function
+  console.log(new Date() + " - checking for any new sales...");
   try {
     let eventsQuery = await axios.get(
       // get data for any new sales since the last time we checked
@@ -49,10 +50,10 @@ async function watchOpensea() {
         Math.floor(lastChecked.getTime() / 1000)
     );
   } catch (err) {
-    console.log(
+    console.error(
       "Something went wrong when getting data from OpenSea...\nDumping error log..."
     );
-    console.log(err);
+    console.error(err);
   }
 
   try {
@@ -93,10 +94,10 @@ async function watchOpensea() {
 
     lastChecked = new Date(); // update our last checked date for next time we are called
   } catch (err) {
-    console.log(
+    console.error(
       "Something went wrong when trying to publish sales to Discord...\nDumping error log..."
     );
-    console.log(err);
+    console.error(err);
   }
 }
 runBot(); // start!
