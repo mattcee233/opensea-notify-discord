@@ -12,22 +12,30 @@ let lastChecked = new Date(); // storage variable for the last time we checked o
 
 function runBot() {
   // initial bot setup function which gets run on startup
-  const client = new Client({
-    // create a bot client configuration
-    intents: botIntents,
-    partials: ["CHANNEL", "MESSAGE"],
-  });
-  client.on("ready", async () => {
-    // setup actions to take once the bot connects including to:
-    console.log("Logged in as " + client.user.tag); // log in console that the bot has correctly logged in
-    channel = await client.channels.fetch(process.env.channelId); // set our storage variable for our announcement channel
+  try {
+    const client = new Client({
+      // create a bot client configuration
+      intents: botIntents,
+      partials: ["CHANNEL", "MESSAGE"],
+    });
+    client.on("ready", async () => {
+      // setup actions to take once the bot connects including to:
+      console.log("Logged in as " + client.user.tag); // log in console that the bot has correctly logged in
+      channel = await client.channels.fetch(process.env.channelId); // set our storage variable for our announcement channel
 
-    setInterval(() => {
-      // setup a timer which triggers on our intervals to do our announcements
-      watchOpensea(); // announcement function call
-    }, Number(process.env.checkInterval) * 1000);
-  });
-  client.login(process.env.botToken); // tell the bot to try to log in now we have set up its actions
+      setInterval(() => {
+        // setup a timer which triggers on our intervals to do our announcements
+        watchOpensea(); // announcement function call
+      }, Number(process.env.checkInterval) * 1000);
+    });
+    client.login(process.env.botToken); // tell the bot to try to log in now we have set up its actions
+  } catch (err) {
+    console.log(
+      "Something went wrong when trying to setup/connect the bot to discord...\nDumping error log..."
+    );
+    console.log(err);
+    process.exit();
+  }
 }
 
 async function watchOpensea() {
@@ -40,7 +48,14 @@ async function watchOpensea() {
         "&event_type=successful&only_opensea=true&occurred_after=" +
         Math.floor(lastChecked.getTime() / 1000)
     );
+  } catch (err) {
+    console.log(
+      "Something went wrong when getting data from OpenSea...\nDumping error log..."
+    );
+    console.log(err);
+  }
 
+  try {
     let price, usdPrice, currency;
     // loop thorugh sales and announce them
     for (let token of eventsQuery.data.asset_events) {
@@ -78,6 +93,9 @@ async function watchOpensea() {
 
     lastChecked = new Date(); // update our last checked date for next time we are called
   } catch (err) {
+    console.log(
+      "Something went wrong when trying to publish sales to Discord...\nDumping error log..."
+    );
     console.log(err);
   }
 }
