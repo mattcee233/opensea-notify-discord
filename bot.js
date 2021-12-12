@@ -46,7 +46,7 @@ async function watchOpensea() {
       // get data for any new sales since the last time we checked
       "https://api.opensea.io/api/v1/events?collection_slug=" +
         process.env.collection_slug +
-        "&event_type=successful&only_opensea=true&occurred_after=" +
+        "&event_type=successful&only_opensea=false&occurred_after=" +
         Math.floor(lastChecked.getTime() / 1000)
     );
 
