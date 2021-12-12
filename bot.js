@@ -47,7 +47,7 @@ async function watchOpensea() {
       "https://api.opensea.io/api/v1/events?collection_slug=" +
         process.env.collection_slug +
         "&event_type=successful&only_opensea=true&occurred_after=" +
-        Math.floor(lastChecked.getTime() - (3 * 8640000) / 1000)
+        Math.floor(lastChecked.getTime() / 1000)
     );
 
     try {
