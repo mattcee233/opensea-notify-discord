@@ -4,7 +4,7 @@ const axios = require("axios"); // used for making requests to openseas API
 axios.defaults.headers.common["X-API-KEY"] = process.env.openseaKey; // set our opensea API token
 axios.defaults.headers.common["Accept"] = "application/json"; // we want opensea to respond in JSON
 
-const botIntents = new Intents();
+const botIntents = new Intents(); // not really required but Discord requires this to log a bot in these days...
 botIntents.add(Intents.FLAGS.GUILD_MESSAGES);
 
 let channel; // storage variable for our discord channel to talk into
