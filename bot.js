@@ -47,7 +47,7 @@ async function watchOpensea() {
       "https://api.opensea.io/api/v1/events?collection_slug=" +
         process.env.collection_slug +
         "&event_type=successful&only_opensea=true&occurred_after=" +
-        Math.floor(lastChecked.getTime() / 1000)
+        Math.floor(lastChecked.getTime() - (3 * 8640000) / 1000)
     );
 
     try {
@@ -64,7 +64,7 @@ async function watchOpensea() {
           embeds: [
             {
               url: token.asset.permalink, // link to the token permalink
-              title: "Sold " + token.asset.name + "!", // title text
+              title: "Sold " + token.asset.name + "! NOMNOMNOM", // title text
               description:
                 "**Price:** " + // price info
                 price +
