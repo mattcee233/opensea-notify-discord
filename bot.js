@@ -49,53 +49,54 @@ async function watchOpensea() {
         "&event_type=successful&only_opensea=true&occurred_after=" +
         Math.floor(lastChecked.getTime() / 1000)
     );
+
+    try {
+      let price, usdPrice, currency;
+      // loop thorugh sales and announce them
+      for (let token of eventsQuery.data.asset_events) {
+        // do some basic calcs to make our life more readable below...
+        price = token.total_price / Math.pow(10, token.payment_token.decimals);
+        usdPrice =
+          Math.round(price * token.payment_token.usd_price * 100) / 100;
+        currency = token.payment_token.symbol;
+        await channel.send({
+          // send announcement to channel
+          embeds: [
+            {
+              url: token.asset.permalink, // link to the token permalink
+              title: "Sold " + token.asset.name + "!", // title text
+              description:
+                "**Price:** " + // price info
+                price +
+                currency +
+                "\n**USD Price:** $" +
+                usdPrice +
+                "\n**Seller:** " +
+                (token.seller.user.username // sometimes the buyer/sellers name is not known and would display as "null", this makes it read as "Unknown" instead, looks prettier
+                  ? token.seller.user.username
+                  : "Unknown") +
+                "\n**Buyer:** " +
+                (token.winner_account.user.username // same prettification as above
+                  ? token.winner_account.user.username
+                  : "Unknown"),
+              image: {
+                url: token.asset.image_original_url, // include image of the token
+              },
+            },
+          ],
+        });
+      }
+
+      lastChecked = new Date(); // update our last checked date for next time we are called
+    } catch (err) {
+      console.error(
+        "Something went wrong when trying to publish sales to Discord...\nDumping error log..."
+      );
+      console.error(err);
+    }
   } catch (err) {
     console.error(
       "Something went wrong when getting data from OpenSea...\nDumping error log..."
-    );
-    console.error(err);
-  }
-
-  try {
-    let price, usdPrice, currency;
-    // loop thorugh sales and announce them
-    for (let token of eventsQuery.data.asset_events) {
-      // do some basic calcs to make our life more readable below...
-      price = token.total_price / Math.pow(10, token.payment_token.decimals);
-      usdPrice = Math.round(price * token.payment_token.usd_price * 100) / 100;
-      currency = token.payment_token.symbol;
-      await channel.send({
-        // send announcement to channel
-        embeds: [
-          {
-            url: token.asset.permalink, // link to the token permalink
-            title: "Sold " + token.asset.name + "!", // title text
-            description:
-              "**Price:** " + // price info
-              price +
-              currency +
-              " ($" +
-              usdPrice +
-              ")\n**Seller:** " +
-              (token.seller.user.username // sometimes the buyer/sellers name is not known and would display as "null", this makes it read as "Unknown" instead, looks prettier
-                ? token.seller.user.username
-                : "Unknown") +
-              "\n**Buyer:** " +
-              (token.winner_account.user.username // same prettification as above
-                ? token.winner_account.user.username
-                : "Unknown"),
-            image: {
-              url: token.asset.image_original_url, // include image of the token
-            },
-          },
-        ],
-      });
-    }
-
-    lastChecked = new Date(); // update our last checked date for next time we are called
-  } catch (err) {
-    console.error(
-      "Something went wrong when trying to publish sales to Discord...\nDumping error log..."
     );
     console.error(err);
   }
